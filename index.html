@@ -3,136 +3,150 @@
 <head>
   <meta charset="UTF-8">
   <title>Desigualdades con Gráfico</title>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
+      font-family: Arial;
+      background-color: #c8e8e0;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
     }
-    input, button {
+    input, select, button {
       padding: 8px;
-      font-size: 16px;
+      margin: 6px 0;
+      width: 100%;
     }
     #resultado {
+      margin-top: 15px;
+      background: #e6f7ff;
+      padding: 10px;
+      border-left: 4px solid #007acc;
+    }
+    canvas {
       margin-top: 20px;
-      font-weight: bold;
     }
   </style>
 </head>
 <body>
-  <h1>Resolver desigualdades lineales y cuadráticas</h1>
-  <p>Ejemplos: <code>2x + 3 &lt; 7</code> | <code>x^2 - 4 &gt; 0</code></p>
 
-  <input type="text" id="desigualdad" placeholder="Ej: x^2 - 4 > 0" size="35">
+  <h2>Resolver Desigualdades y Graficar</h2>
+
+  <label>Tipo de desigualdad:</label>
+  <select id="tipo">
+    <option value="lineal">Lineal (ax + b > 0)</option>
+    <option value="cuadratica">Cuadrática (ax² + bx + c > 0)</option>
+  </select>
+
+  <label>Coeficiente a:</label>
+  <input type="number" id="a">
+
+  <label>Coeficiente b:</label>
+  <input type="number" id="b">
+
+  <label>Coeficiente c (solo para cuadráticas):</label>
+  <input type="number" id="c" value="0">
+
+  <label>Desigualdad:</label>
+  <select id="desigualdad">
+    <option value=">">&gt;</option>
+    <option value=">=">&ge;</option>
+    <option value="<">&lt;</option>
+    <option value="<=">&le;</option>
+  </select>
+
   <button onclick="resolver()">Resolver</button>
 
   <div id="resultado"></div>
-  <div id="grafico" style="width:100%;max-width:700px;height:400px;"></div>
+
+  <canvas id="grafico" width="600" height="300"></canvas>
 
   <script>
+    let chart;
+
     function resolver() {
-      const entrada = document.getElementById("desigualdad").value.replace(/\s/g, '');
-      const resultado = document.getElementById("resultado");
+      const tipo = document.getElementById('tipo').value;
+      const a = parseFloat(document.getElementById('a').value);
+      const b = parseFloat(document.getElementById('b').value);
+      const c = parseFloat(document.getElementById('c').value);
+      const simbolo = document.getElementById('desigualdad').value;
+      let res = '';
 
-      const match = entrada.match(/(.*)(<=|>=|<|>)(.*)/);
-      if (!match) {
-        resultado.innerHTML = "❌ Formato inválido. Usa <, >, <=, >=";
-        return;
-      }
-
-      let [_, izquierda, operador, derecha] = match;
-      const expr = `${izquierda} - (${derecha})`;
-      const esCuadratica = expr.includes("x^2");
-      const valoresX = [];
-      const valoresY = [];
+      let labels = [];
+      let valores = [];
 
       for (let x = -10; x <= 10; x += 0.1) {
-        const y = evaluarExpresion(expr, x);
-        valoresX.push(x);
-        valoresY.push(y);
+        x = parseFloat(x.toFixed(2));
+        labels.push(x);
+        let y;
+        if (tipo === 'lineal') {
+          y = a * x + b;
+        } else {
+          y = a * x * x + b * x + c;
+        }
+        valores.push(y);
       }
 
-      graficar(valoresX, valoresY, expr);
-
-      if (esCuadratica) {
-        try {
-          const a = parseFloat(expr.match(/([+-]?\d*\.?\d*)x\^2/)?.[1] || 1);
-          const b = parseFloat((expr.match(/([+-]?\d*\.?\d*)x(?![\^])/g) || ['0'])[0]);
-          const c = parseFloat(expr
-            .replace(/([+-]?\d*\.?\d*)x\^2/, '')
-            .replace(/([+-]?\d*\.?\d*)x(?![\^])/, '') || 0);
-
-          const disc = b*b - 4*a*c;
-
-          if (disc < 0) {
-            resultado.innerHTML = "La desigualdad no tiene solución real.";
-          } else {
-            const x1 = (-b + Math.sqrt(disc)) / (2*a);
-            const x2 = (-b - Math.sqrt(disc)) / (2*a);
-            const menor = Math.min(x1, x2).toFixed(2);
-            const mayor = Math.max(x1, x2).toFixed(2);
-
-            let sol = "";
-            if (operador === ">") sol = `x < ${menor} o x > ${mayor}`;
-            if (operador === "<") sol = `${menor} < x < ${mayor}`;
-            if (operador === ">=") sol = `x ≤ ${menor} o x ≥ ${mayor}`;
-            if (operador === "<=") sol = `${menor} ≤ x ≤ ${mayor}`;
-
-            resultado.innerHTML = `Solución: ${sol}`;
-          }
-        } catch {
-          resultado.innerHTML = "❌ No se pudo analizar la cuadrática.";
+      // Resolver desigualdad
+      if (tipo === 'lineal') {
+        if (a !== 0) {
+          const x = -b / a;
+          res = Solución: x ${simbolo} ${x.toFixed(2)};
+        } else {
+          res = b + ' ' + simbolo + ' 0';
         }
       } else {
-        // Aproximación para desigualdad lineal
-        let ejemplo = '';
-        for (let x = -10; x <= 10; x++) {
-          const val1 = evaluarExpresion(izquierda, x);
-          const val2 = evaluarExpresion(derecha, x);
-          let cumple = false;
-
-          switch (operador) {
-            case "<": cumple = val1 < val2; break;
-            case ">": cumple = val1 > val2; break;
-            case "<=": cumple = val1 <= val2; break;
-            case ">=": cumple = val1 >= val2; break;
-          }
-
-          if (cumple) {
-            ejemplo = `Se cumple para x = ${x}`;
-            break;
+        const D = b * b - 4 * a * c;
+        if (D < 0) {
+          res = 'No hay soluciones reales (la parábola no corta el eje x).';
+        } else {
+          const x1 = (-b + Math.sqrt(D)) / (2 * a);
+          const x2 = (-b - Math.sqrt(D)) / (2 * a);
+          const xmin = Math.min(x1, x2).toFixed(2);
+          const xmax = Math.max(x1, x2).toFixed(2);
+          if (a > 0) {
+            if (simbolo === '>') res = Solución: x < ${xmin} o x > ${xmax};
+            if (simbolo === '<') res = Solución: ${xmin} < x < ${xmax};
+          } else {
+            if (simbolo === '>') res = Solución: ${xmin} < x < ${xmax};
+            if (simbolo === '<') res = Solución: x < ${xmin} o x > ${xmax};
           }
         }
-        resultado.innerHTML = ejemplo || "No se cumple la desigualdad para x entre -10 y 10.";
       }
-    }
 
-    function evaluarExpresion(expr, x) {
-      try {
-        return eval(expr.replace(/x/g, `(${x})`));
-      } catch {
-        return NaN;
-      }
-    }
+      document.getElementById('resultado').innerText = res;
 
-    function graficar(x, y, expresion) {
-      const trace = {
-        x: x,
-        y: y,
-        mode: 'lines',
-        name: expresion,
-        line: {color: 'blue'}
-      };
-
-      const layout = {
-        title: `Gráfico de: f(x) = ${expresion}`,
-        xaxis: {title: 'x'},
-        yaxis: {title: 'f(x)'},
-        showlegend: false
-      };
-
-      Plotly.newPlot('grafico', [trace], layout);
+      // Mostrar gráfico
+      if (chart) chart.destroy();
+      const ctx = document.getElementById('grafico').getContext('2d');
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: tipo === 'lineal' ? 'f(x) = ax + b' : 'f(x) = ax² + bx + c',
+            data: valores,
+            borderColor: 'blue',
+            fill: false,
+            pointRadius: 0,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: { display: true, text: 'x' }
+            },
+            y: {
+              title: { display: true, text: 'f(x)' },
+              beginAtZero: false
+            }
+          }
+        }
+      });
     }
   </script>
+
 </body>
 </html>
