@@ -2,143 +2,97 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Desigualdades con Gráfico</title>
+  <title>Desigualdades Lineales y Cuadráticas</title>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 40px;
-      background-color: #f5f5f5;
-      color: #333;
-    }
-
-    h1 {
-      color: #2a2a2a;
-    }
-
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-
-    button {
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0056b3;
-    }
-
-    #grafico {
-      margin-top: 30px;
-    }
-
-    #resultado {
-      margin-top: 20px;
-      font-weight: bold;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, select, button { margin: 5px; padding: 5px; }
   </style>
 </head>
 <body>
-  <h1>Resolver desigualdades con gráfico</h1>
-  <p>Ejemplos: <code>x^2 - 4 > 0</code> | <code>2x + 3 &lt; 7</code></p>
 
-  <input type="text" id="input" placeholder="Escribe la desigualdad" size="35">
-  <button onclick="resolverDesigualdad()">Resolver</button>
+  <h2>Resolver y graficar desigualdades lineales y cuadráticas</h2>
 
+  <label for="tipo">Tipo de desigualdad:</label>
+  <select id="tipo">
+    <option value="lineal">Lineal</option>
+    <option value="cuadratica">Cuadrática</option>
+  </select><br>
+
+  <label for="a">a:</label>
+  <input type="number" id="a" value="1"><br>
+
+  <label for="b">b:</label>
+  <input type="number" id="b" value="0"><br>
+
+  <label for="c">c (solo para cuadráticas):</label>
+  <input type="number" id="c" value="0"><br>
+
+  <label for="desigualdad">Desigualdad:</label>
+  <select id="desigualdad">
+    <option value=">">&gt;</option>
+    <option value=">=">&ge;</option>
+    <option value="<">&lt;</option>
+    <option value="<=">&le;</option>
+  </select><br>
+
+  <button onclick="resolver()">Resolver y Graficar</button>
+
+  <h3>Resultado:</h3>
   <div id="resultado"></div>
-  <div id="grafico"></div>
+
+  <div id="grafico" style="width:100%;max-width:700px;height:400px;"></div>
 
   <script>
-    function resolverDesigualdad() {
-      const input = document.getElementById("input").value.replace(/\s/g, '');
-      const resultado = document.getElementById("resultado");
+    function resolver() {
+      const tipo = document.getElementById("tipo").value;
+      const a = parseFloat(document.getElementById("a").value);
+      const b = parseFloat(document.getElementById("b").value);
+      const c = parseFloat(document.getElementById("c").value);
+      const desigualdad = document.getElementById("desigualdad").value;
+      const resultadoDiv = document.getElementById("resultado");
 
-      const match = input.match(/(.+)(<=|>=|<|>)(.+)/);
-      if (!match) {
-        resultado.innerHTML = "❌ Formato incorrecto. Usa símbolos como <, >, <=, >=";
-        Plotly.purge('grafico');
-        return;
+      let x = [], y = [], texto = "";
+
+      for (let i = -20; i <= 20; i += 0.1) {
+        x.push(i);
+        let val = tipo === "lineal" ? a * i + b : a * i * i + b * i + c;
+        y.push(val);
       }
 
-      const [_, izquierda, operador, derecha] = match;
-      const f_expr = `(${izquierda}) - (${derecha})`;
-
-      const valoresX = [];
-      const valoresY = [];
-      const sombraX = [];
-      const sombraY = [];
-
-      for (let x = -10; x <= 10; x += 0.1) {
-        let y = evaluar(f_expr, x);
-        valoresX.push(x);
-        valoresY.push(y);
-
-        let cumple = false;
-        switch (operador) {
-          case "<": cumple = y < 0; break;
-          case "<=": cumple = y <= 0; break;
-          case ">": cumple = y > 0; break;
-          case ">=": cumple = y >= 0; break;
-        }
-
-        if (cumple) {
-          sombraX.push(x);
-          sombraY.push(y);
-        }
+      if (tipo === "lineal") {
+        texto = `Desigualdad: ${a}x + ${b} ${desigualdad} 0`;
+      } else {
+        texto = `Desigualdad: ${a}x² + ${b}x + ${c} ${desigualdad} 0`;
       }
 
-      graficar(valoresX, valoresY, sombraX, sombraY, f_expr);
-      resultado.innerHTML = "🔎 Gráfico generado. Observa las zonas sombreadas donde se cumple la desigualdad.";
-    }
+      resultadoDiv.innerHTML = `<p><strong>${texto}</strong></p>`;
 
-    function evaluar(expr, x) {
-      try {
-        return eval(expr.replace(/x/g, `(${x})`));
-      } catch {
-        return NaN;
-      }
-    }
-
-    function graficar(x, y, xSombra, ySombra, expr) {
-      const funcion = {
+      // Crear la traza
+      const traza = {
         x: x,
         y: y,
-        type: 'scatter',
         mode: 'lines',
-        name: `f(x) = ${expr}`,
+        name: 'Función',
         line: { color: 'blue' }
       };
 
-      const sombra = {
-        x: xSombra,
-        y: ySombra,
-        fill: 'tozeroy',
-        type: 'scatter',
-        mode: 'none',
-        name: 'Región válida',
-        fillcolor: 'rgba(0, 200, 0, 0.3)'
+      // Línea de y=0
+      const lineaCero = {
+        x: x,
+        y: x.map(() => 0),
+        mode: 'lines',
+        name: 'y = 0',
+        line: { color: 'black', dash: 'dot' }
       };
 
-      const layout = {
-        title: 'Gráfico de la desigualdad',
-        xaxis: {
-          title: 'x',
-          zeroline: true
-        },
-        yaxis: {
-          title: 'f(x)',
-          zeroline: true
-        },
-        showlegend: true
-      };
-
-      Plotly.newPlot('grafico', [funcion, sombra], layout);
+      Plotly.newPlot("grafico", [traza, lineaCero], {
+        title: "Gráfico de la desigualdad",
+        xaxis: { title: "x", zeroline: true },
+        yaxis: { title: "y", zeroline: true }
+      });
     }
   </script>
+
 </body>
 </html>
