@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resolución de Desigualdades</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    input, button {
+      padding: 8px;
+      font-size: 16px;
+    }
+    #resultado {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Resolución de Desigualdades Lineales y Cuadráticas</h1>
+
+  <p>Ingresa una desigualdad como: <strong>2x+3 &lt; 7</strong> o <strong>x^2 - 4 &gt; 0</strong></p>
+
+  <input type="text" id="desigualdad" placeholder="Ejemplo: x^2 - 4 > 0" size="30">
+  <button onclick="resolver()">Resolver</button>
+
+  <div id="resultado"></div>
+
+  <script>
+    function resolver() {
+      const entrada = document.getElementById("desigualdad").value.replace(/\s/g, '');
+      const resultado = document.getElementById("resultado");
+
+      // Separar expresión y desigualdad
+      const match = entrada.match(/(.*)(<=|>=|<|>)(.*)/);
+      if (!match) {
+        resultado.innerHTML = "❌ Formato inválido. Usa operadores como <, >, <=, >=";
+        return;
+      }
+
+      let [_, izquierda, operador, derecha] = match;
+
+      // Intentamos pasar la desigualdad a una sola expresión (izquierda - derecha)
+      const expr = `${izquierda} - (${derecha})`;
+
+      // Detectamos si es cuadrática (contiene x^2)
+      const esCuadratica = expr.includes("x^2");
+
+      if (esCuadratica) {
+        // Extraer coeficientes (simplificado)
+        try {
+          const a = parseFloat(expr.match(/([+-]?[\d\.]*)x\^2/)?.[1] || 1);
+          const b = parseFloat(expr.match(/([+-]?[\d\.]*)x(?![\^])/g)?.[0] || 0);
+          const c = parseFloat(expr.replace(/([+-]?[\d\.]*)x\^2/, '').replace(/([+-]?[\d\.]*)x(?![\^])/, '') || 0);
+
+          const discriminante = b * b - 4 * a * c;
+
+          if (discriminante < 0) {
+            resultado.innerHTML = "No hay solución real.";
+          } else {
+            const x1 = (-b + Math.sqrt(discriminante)) / (2 * a);
+            const x2 = (-b - Math.sqrt(discriminante)) / (2 * a);
+
+            const menor = Math.min(x1, x2);
+            const mayor = Math.max(x1, x2);
+
+            let sol = "";
+            if (operador === ">") sol = `x < ${menor.toFixed(2)} o x > ${mayor.toFixed(2)}`;
+            else if (operador === "<") sol = `${menor.toFixed(2)} < x < ${mayor.toFixed(2)}`;
+            else if (operador === ">=") sol = `x ≤ ${menor.toFixed(2)} o x ≥ ${mayor.toFixed(2)}`;
+            else if (operador === "<=") sol = `${menor.toFixed(2)} ≤ x ≤ ${mayor.toFixed(2)}`;
+
+            resultado.innerHTML = `Solución: ${sol}`;
+          }
+        } catch {
+          resultado.innerHTML = "❌ No se pudo procesar la cuadrática.";
+        }
+      } else {
+        // Resolver como desigualdad lineal
+        try {
+          // Reemplazo de x por una variable
+          const x = 'x';
+          const step = 0.1;
+          let intervalo = '';
+
+          for (let i = -100; i <= 100; i += step) {
+            const val1 = eval(izquierda.replace(/x/g, `(${i.toFixed(4)})`));
+            const val2 = eval(derecha.replace(/x/g, `(${i.toFixed(4)})`));
+            let cumple = false;
+
+            switch (operador) {
+              case "<": cumple = val1 < val2; break;
+              case ">": cumple = val1 > val2; break;
+              case "<=": cumple = val1 <= val2; break;
+              case ">=": cumple = val1 >= val2; break;
+            }
+
+            if (cumple) {
+              intervalo = "La desigualdad se cumple en un intervalo que incluye valores como x = " + i.toFixed(2);
+              break;
+            }
+          }
+
+          resultado.innerHTML = intervalo || "❌ No se cumple la desigualdad en el dominio evaluado.";
+        } catch {
+          resultado.innerHTML = "❌ Error en la evaluación de la desigualdad.";
+        }
+      }
+    }
+  </script>
+</body>
+</html>
