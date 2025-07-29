@@ -2,31 +2,31 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Derivada por definición</title>
+  <title>Derivada por Definición</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.1/math.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f8f9fa;
+      background-color: #f4f6f8;
       padding: 40px;
     }
+
     .contenedor {
-      background-color: #fff;
+      background: white;
       max-width: 800px;
       margin: auto;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-    }
+
     input {
+      width: 70%;
       padding: 10px;
       font-size: 16px;
-      width: 70%;
       margin-right: 10px;
     }
+
     button {
       padding: 10px 20px;
       font-size: 16px;
@@ -36,59 +36,66 @@
       border-radius: 5px;
       cursor: pointer;
     }
-    .pasos {
-      margin-top: 30px;
-      font-size: 18px;
-    }
+
     .paso {
       background-color: #ecf0f1;
       padding: 12px;
       border-left: 5px solid #3498db;
+      margin-top: 15px;
       border-radius: 5px;
-      margin-bottom: 15px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
     }
   </style>
 </head>
 <body>
   <div class="contenedor">
-    <h1>Derivada por definición</h1>
-    <p>Escribe una función (por ejemplo: <strong>x^2</strong>, <strong>3x^3</strong>, <strong>2x^2</strong>):</p>
-    <input type="text" id="funcion" placeholder="Ej: x^2">
-    <button onclick="resolverDerivada()">Resolver</button>
+    <h1>Derivada por la definición</h1>
+    <p>Escribe la función f(x):</p>
+    <input type="text" id="funcion" placeholder="Ej: x^2 + 3x">
+    <button onclick="resolver()">Resolver</button>
 
-    <div class="pasos" id="resultado"></div>
+    <div id="resultados"></div>
   </div>
 
   <script>
-    function resolverDerivada() {
-      const entrada = document.getElementById('funcion').value.trim();
-      const resultado = document.getElementById('resultado');
-      resultado.innerHTML = "";
+    function resolver() {
+      const fxInput = document.getElementById("funcion").value;
+      const resultados = document.getElementById("resultados");
+      resultados.innerHTML = "";
 
-      if (entrada === "x^2") {
-        resultado.innerHTML = `
-          <div class="paso">1. Usamos la fórmula: f'(x) = lim<sub>Δx→0</sub> [(f(x+Δx) - f(x)) / Δx]</div>
-          <div class="paso">2. Sustituimos f(x) = x²: f'(x) = lim<sub>Δx→0</sub> [((x + Δx)² - x²) / Δx]</div>
-          <div class="paso">3. Expandimos (x + Δx)² = x² + 2xΔx + (Δx)²</div>
-          <div class="paso">4. Sustituimos: f'(x) = lim<sub>Δx→0</sub> [(x² + 2xΔx + (Δx)² - x²) / Δx]</div>
-          <div class="paso">5. Simplificamos: = lim<sub>Δx→0</sub> [(2xΔx + (Δx)²) / Δx]</div>
-          <div class="paso">6. Factorizamos: = lim<sub>Δx→0</sub> [Δx(2x + Δx) / Δx]</div>
-          <div class="paso">7. Cancelamos Δx: = lim<sub>Δx→0</sub> [2x + Δx]</div>
-          <div class="paso">8. Aplicamos el límite: f'(x) = 2x ✅</div>
-        `;
-      } else if (entrada === "x^3") {
-        resultado.innerHTML = `
-          <div class="paso">1. Usamos la fórmula: f'(x) = lim<sub>Δx→0</sub> [(f(x+Δx) - f(x)) / Δx]</div>
-          <div class="paso">2. Sustituimos f(x) = x³: f'(x) = lim<sub>Δx→0</sub> [((x + Δx)³ - x³) / Δx]</div>
-          <div class="paso">3. Expandimos (x + Δx)³ = x³ + 3x²Δx + 3x(Δx)² + (Δx)³</div>
-          <div class="paso">4. Sustituimos: f'(x) = lim<sub>Δx→0</sub> [(x³ + 3x²Δx + 3x(Δx)² + (Δx)³ - x³) / Δx]</div>
-          <div class="paso">5. Simplificamos: = lim<sub>Δx→0</sub> [(3x²Δx + 3x(Δx)² + (Δx)³) / Δx]</div>
-          <div class="paso">6. Factorizamos: = lim<sub>Δx→0</sub> [Δx(3x² + 3xΔx + (Δx)²) / Δx]</div>
-          <div class="paso">7. Cancelamos Δx: = lim<sub>Δx→0</sub> [3x² + 3xΔx + (Δx)²]</div>
-          <div class="paso">8. Aplicamos el límite: f'(x) = 3x² ✅</div>
-        `;
-      } else {
-        resultado.innerHTML = `<div class="paso">⚠️ Por ahora solo se admiten funciones como x^2 o x^3. Pronto se podrán más.</div>`;
+      try {
+        // Paso 1: f(x + h)
+        const h = math.parse("h");
+        const x = math.parse("x");
+
+        const f_x = math.parse(fxInput);
+        const f_x_h = f_x.transform(node => {
+          return node.isSymbolNode && node.name === "x"
+            ? math.parse("(x + h)")
+            : node;
+        });
+
+        const fx = f_x.toString();
+        const fxh = f_x_h.toString();
+
+        // Paso 2: (f(x+h) - f(x)) / h
+        const diferencia = math.simplify(`(${fxh}) - (${fx})`);
+        const cociente = math.simplify(`(${diferencia.toString()}) / h`);
+        const derivada = math.simplify(cociente.toString().replace(/h/g, "0"));
+
+        // Mostrar pasos
+        resultados.innerHTML += `<div class="paso">1. Fórmula: f'(x) = lim<sub>h→0</sub> [(f(x + h) - f(x)) / h]</div>`;
+        resultados.innerHTML += `<div class="paso">2. f(x) = ${fx}</div>`;
+        resultados.innerHTML += `<div class="paso">3. f(x + h) = ${fxh}</div>`;
+        resultados.innerHTML += `<div class="paso">4. Sustituyendo: [${fxh} - ${fx}] / h</div>`;
+        resultados.innerHTML += `<div class="paso">5. Simplificando: ${cociente.toString()}</div>`;
+        resultados.innerHTML += `<div class="paso">6. Aplicando el límite h → 0: f'(x) = ${math.simplify(derivada.toString())}</div>`;
+      } catch (e) {
+        resultados.innerHTML = `<div class="paso">❌ Error en la función. Asegúrate de escribirla correctamente. Ej: x^2 + 3x</div>`;
       }
     }
   </script>
