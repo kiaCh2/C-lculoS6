@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Derivada por Definición</title>
+  <title>Derivada paso a paso</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.1/math.min.js"></script>
   <style>
     body {
@@ -10,7 +10,6 @@
       background-color: #f4f6f8;
       padding: 40px;
     }
-
     .contenedor {
       background: white;
       max-width: 800px;
@@ -19,14 +18,16 @@
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
-
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
     input {
       width: 70%;
       padding: 10px;
       font-size: 16px;
       margin-right: 10px;
     }
-
     button {
       padding: 10px 20px;
       font-size: 16px;
@@ -36,18 +37,13 @@
       border-radius: 5px;
       cursor: pointer;
     }
-
     .paso {
       background-color: #ecf0f1;
       padding: 12px;
       border-left: 5px solid #3498db;
       margin-top: 15px;
       border-radius: 5px;
-    }
-
-    h1 {
-      text-align: center;
-      color: #2c3e50;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -57,45 +53,53 @@
     <p>Escribe la función f(x):</p>
     <input type="text" id="funcion" placeholder="Ej: x^2 + 3x">
     <button onclick="resolver()">Resolver</button>
-
     <div id="resultados"></div>
   </div>
 
   <script>
     function resolver() {
-      const fxInput = document.getElementById("funcion").value;
+      const entrada = document.getElementById("funcion").value.trim();
       const resultados = document.getElementById("resultados");
       resultados.innerHTML = "";
 
+      if (!entrada) {
+        resultados.innerHTML = '<div class="paso">⚠️ Por favor, escribe una función.</div>';
+        return;
+      }
+
       try {
-        // Paso 1: f(x + h)
         const h = math.parse("h");
-        const x = math.parse("x");
-
-        const f_x = math.parse(fxInput);
-        const f_x_h = f_x.transform(node => {
-          return node.isSymbolNode && node.name === "x"
-            ? math.parse("(x + h)")
-            : node;
-        });
-
+        const f_x = math.parse(entrada);
+        
+        // f(x)
         const fx = f_x.toString();
+
+        // f(x + h)
+        const f_x_h = f_x.transform(node =>
+          node.isSymbolNode && node.name === "x"
+            ? math.parse("(x + h)")
+            : node
+        );
         const fxh = f_x_h.toString();
 
-        // Paso 2: (f(x+h) - f(x)) / h
+        // Paso 1: Diferencia
         const diferencia = math.simplify(`(${fxh}) - (${fx})`);
+        
+        // Paso 2: Cociente
         const cociente = math.simplify(`(${diferencia.toString()}) / h`);
+        
+        // Paso 3: Límite (h → 0)
         const derivada = math.simplify(cociente.toString().replace(/h/g, "0"));
 
         // Mostrar pasos
-        resultados.innerHTML += `<div class="paso">1. Fórmula: f'(x) = lim<sub>h→0</sub> [(f(x + h) - f(x)) / h]</div>`;
-        resultados.innerHTML += `<div class="paso">2. f(x) = ${fx}</div>`;
-        resultados.innerHTML += `<div class="paso">3. f(x + h) = ${fxh}</div>`;
-        resultados.innerHTML += `<div class="paso">4. Sustituyendo: [${fxh} - ${fx}] / h</div>`;
-        resultados.innerHTML += `<div class="paso">5. Simplificando: ${cociente.toString()}</div>`;
-        resultados.innerHTML += `<div class="paso">6. Aplicando el límite h → 0: f'(x) = ${math.simplify(derivada.toString())}</div>`;
-      } catch (e) {
-        resultados.innerHTML = `<div class="paso">❌ Error en la función. Asegúrate de escribirla correctamente. Ej: x^2 + 3x</div>`;
+        resultados.innerHTML += `<div class="paso">1️⃣ Fórmula general: f'(x) = lim₍ₕ→0₎ [(f(x+h) - f(x)) / h]</div>`;
+        resultados.innerHTML += `<div class="paso">2️⃣ f(x) = ${fx}</div>`;
+        resultados.innerHTML += `<div class="paso">3️⃣ f(x+h) = ${fxh}</div>`;
+        resultados.innerHTML += `<div class="paso">4️⃣ Diferencia: (${fxh}) - (${fx}) = ${diferencia.toString()}</div>`;
+        resultados.innerHTML += `<div class="paso">5️⃣ Cociente: (${diferencia.toString()}) / h = ${cociente.toString()}</div>`;
+        resultados.innerHTML += `<div class="paso">6️⃣ Límite cuando h → 0: f'(x) = ${math.simplify(derivada.toString())} ✅</div>`;
+      } catch (error) {
+        resultados.innerHTML = `<div class="paso">❌ Error al procesar la función. Asegúrate de escribirla correctamente. Ejemplo válido: x^3 + 2x</div>`;
       }
     }
   </script>
