@@ -2,97 +2,81 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Desigualdades Lineales y Cuadráticas</title>
-  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <title>Derivada paso a paso</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    input, select, button { margin: 5px; padding: 5px; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f4f8;
+      padding: 40px;
+    }
+
+    .contenedor {
+      background-color: #ffffff;
+      max-width: 800px;
+      margin: auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+
+    .paso {
+      margin-bottom: 20px;
+      font-size: 18px;
+      line-height: 1.6;
+      background-color: #ecf0f1;
+      padding: 12px;
+      border-left: 5px solid #3498db;
+      border-radius: 5px;
+    }
+
+    .resultado {
+      font-size: 20px;
+      font-weight: bold;
+      color: #27ae60;
+      text-align: center;
+      margin-top: 30px;
+    }
   </style>
 </head>
 <body>
+  <div class="contenedor">
+    <h1>Derivada de f(x) = x² usando la definición</h1>
 
-  <h2>Resolver y graficar desigualdades lineales y cuadráticas</h2>
+    <div class="paso">1. Usamos la fórmula: <br>
+      f'(x) = lim&lt;Δx → 0&gt; [(f(x + Δx) - f(x)) / Δx]
+    </div>
 
-  <label for="tipo">Tipo de desigualdad:</label>
-  <select id="tipo">
-    <option value="lineal">Lineal</option>
-    <option value="cuadratica">Cuadrática</option>
-  </select><br>
+    <div class="paso">2. Sustituimos f(x) = x²: <br>
+      f'(x) = lim&lt;Δx → 0&gt; [((x + Δx)² - x²) / Δx]
+    </div>
 
-  <label for="a">a:</label>
-  <input type="number" id="a" value="1"><br>
+    <div class="paso">3. Expandimos (x + Δx)²: <br>
+      = lim&lt;Δx → 0&gt; [(x² + 2xΔx + (Δx)² - x²) / Δx]
+    </div>
 
-  <label for="b">b:</label>
-  <input type="number" id="b" value="0"><br>
+    <div class="paso">4. Simplificamos términos semejantes: <br>
+      = lim&lt;Δx → 0&gt; [(2xΔx + (Δx)²) / Δx]
+    </div>
 
-  <label for="c">c (solo para cuadráticas):</label>
-  <input type="number" id="c" value="0"><br>
+    <div class="paso">5. Factorizamos Δx en el numerador: <br>
+      = lim&lt;Δx → 0&gt; [Δx(2x + Δx) / Δx]
+    </div>
 
-  <label for="desigualdad">Desigualdad:</label>
-  <select id="desigualdad">
-    <option value=">">&gt;</option>
-    <option value=">=">&ge;</option>
-    <option value="<">&lt;</option>
-    <option value="<=">&le;</option>
-  </select><br>
+    <div class="paso">6. Cancelamos Δx: <br>
+      = lim&lt;Δx → 0&gt; [2x + Δx]
+    </div>
 
-  <button onclick="resolver()">Resolver y Graficar</button>
+    <div class="paso">7. Aplicamos el límite (Δx → 0): <br>
+      = 2x
+    </div>
 
-  <h3>Resultado:</h3>
-  <div id="resultado"></div>
-
-  <div id="grafico" style="width:100%;max-width:700px;height:400px;"></div>
-
-  <script>
-    function resolver() {
-      const tipo = document.getElementById("tipo").value;
-      const a = parseFloat(document.getElementById("a").value);
-      const b = parseFloat(document.getElementById("b").value);
-      const c = parseFloat(document.getElementById("c").value);
-      const desigualdad = document.getElementById("desigualdad").value;
-      const resultadoDiv = document.getElementById("resultado");
-
-      let x = [], y = [], texto = "";
-
-      for (let i = -20; i <= 20; i += 0.1) {
-        x.push(i);
-        let val = tipo === "lineal" ? a * i + b : a * i * i + b * i + c;
-        y.push(val);
-      }
-
-      if (tipo === "lineal") {
-        texto = `Desigualdad: ${a}x + ${b} ${desigualdad} 0`;
-      } else {
-        texto = `Desigualdad: ${a}x² + ${b}x + ${c} ${desigualdad} 0`;
-      }
-
-      resultadoDiv.innerHTML = `<p><strong>${texto}</strong></p>`;
-
-      // Crear la traza
-      const traza = {
-        x: x,
-        y: y,
-        mode: 'lines',
-        name: 'Función',
-        line: { color: 'blue' }
-      };
-
-      // Línea de y=0
-      const lineaCero = {
-        x: x,
-        y: x.map(() => 0),
-        mode: 'lines',
-        name: 'y = 0',
-        line: { color: 'black', dash: 'dot' }
-      };
-
-      Plotly.newPlot("grafico", [traza, lineaCero], {
-        title: "Gráfico de la desigualdad",
-        xaxis: { title: "x", zeroline: true },
-        yaxis: { title: "y", zeroline: true }
-      });
-    }
-  </script>
-
+    <div class="resultado">👉 Entonces, f'(x) = 2x ✅</div>
+  </div>
 </body>
 </html>
