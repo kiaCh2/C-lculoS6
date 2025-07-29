@@ -2,81 +2,95 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Derivada paso a paso</title>
+  <title>Derivada por definición</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f0f4f8;
+      background-color: #f8f9fa;
       padding: 40px;
     }
-
     .contenedor {
-      background-color: #ffffff;
+      background-color: #fff;
       max-width: 800px;
       margin: auto;
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-
     h1 {
       text-align: center;
       color: #2c3e50;
-      margin-bottom: 30px;
     }
-
-    .paso {
-      margin-bottom: 20px;
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 70%;
+      margin-right: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .pasos {
+      margin-top: 30px;
       font-size: 18px;
-      line-height: 1.6;
+    }
+    .paso {
       background-color: #ecf0f1;
       padding: 12px;
       border-left: 5px solid #3498db;
       border-radius: 5px;
-    }
-
-    .resultado {
-      font-size: 20px;
-      font-weight: bold;
-      color: #27ae60;
-      text-align: center;
-      margin-top: 30px;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
   <div class="contenedor">
-    <h1>Derivada de f(x) = x² usando la definición</h1>
+    <h1>Derivada por definición</h1>
+    <p>Escribe una función (por ejemplo: <strong>x^2</strong>, <strong>3x^3</strong>, <strong>2x^2</strong>):</p>
+    <input type="text" id="funcion" placeholder="Ej: x^2">
+    <button onclick="resolverDerivada()">Resolver</button>
 
-    <div class="paso">1. Usamos la fórmula: <br>
-      f'(x) = lim&lt;Δx → 0&gt; [(f(x + Δx) - f(x)) / Δx]
-    </div>
-
-    <div class="paso">2. Sustituimos f(x) = x²: <br>
-      f'(x) = lim&lt;Δx → 0&gt; [((x + Δx)² - x²) / Δx]
-    </div>
-
-    <div class="paso">3. Expandimos (x + Δx)²: <br>
-      = lim&lt;Δx → 0&gt; [(x² + 2xΔx + (Δx)² - x²) / Δx]
-    </div>
-
-    <div class="paso">4. Simplificamos términos semejantes: <br>
-      = lim&lt;Δx → 0&gt; [(2xΔx + (Δx)²) / Δx]
-    </div>
-
-    <div class="paso">5. Factorizamos Δx en el numerador: <br>
-      = lim&lt;Δx → 0&gt; [Δx(2x + Δx) / Δx]
-    </div>
-
-    <div class="paso">6. Cancelamos Δx: <br>
-      = lim&lt;Δx → 0&gt; [2x + Δx]
-    </div>
-
-    <div class="paso">7. Aplicamos el límite (Δx → 0): <br>
-      = 2x
-    </div>
-
-    <div class="resultado">👉 Entonces, f'(x) = 2x ✅</div>
+    <div class="pasos" id="resultado"></div>
   </div>
+
+  <script>
+    function resolverDerivada() {
+      const entrada = document.getElementById('funcion').value.trim();
+      const resultado = document.getElementById('resultado');
+      resultado.innerHTML = "";
+
+      if (entrada === "x^2") {
+        resultado.innerHTML = `
+          <div class="paso">1. Usamos la fórmula: f'(x) = lim<sub>Δx→0</sub> [(f(x+Δx) - f(x)) / Δx]</div>
+          <div class="paso">2. Sustituimos f(x) = x²: f'(x) = lim<sub>Δx→0</sub> [((x + Δx)² - x²) / Δx]</div>
+          <div class="paso">3. Expandimos (x + Δx)² = x² + 2xΔx + (Δx)²</div>
+          <div class="paso">4. Sustituimos: f'(x) = lim<sub>Δx→0</sub> [(x² + 2xΔx + (Δx)² - x²) / Δx]</div>
+          <div class="paso">5. Simplificamos: = lim<sub>Δx→0</sub> [(2xΔx + (Δx)²) / Δx]</div>
+          <div class="paso">6. Factorizamos: = lim<sub>Δx→0</sub> [Δx(2x + Δx) / Δx]</div>
+          <div class="paso">7. Cancelamos Δx: = lim<sub>Δx→0</sub> [2x + Δx]</div>
+          <div class="paso">8. Aplicamos el límite: f'(x) = 2x ✅</div>
+        `;
+      } else if (entrada === "x^3") {
+        resultado.innerHTML = `
+          <div class="paso">1. Usamos la fórmula: f'(x) = lim<sub>Δx→0</sub> [(f(x+Δx) - f(x)) / Δx]</div>
+          <div class="paso">2. Sustituimos f(x) = x³: f'(x) = lim<sub>Δx→0</sub> [((x + Δx)³ - x³) / Δx]</div>
+          <div class="paso">3. Expandimos (x + Δx)³ = x³ + 3x²Δx + 3x(Δx)² + (Δx)³</div>
+          <div class="paso">4. Sustituimos: f'(x) = lim<sub>Δx→0</sub> [(x³ + 3x²Δx + 3x(Δx)² + (Δx)³ - x³) / Δx]</div>
+          <div class="paso">5. Simplificamos: = lim<sub>Δx→0</sub> [(3x²Δx + 3x(Δx)² + (Δx)³) / Δx]</div>
+          <div class="paso">6. Factorizamos: = lim<sub>Δx→0</sub> [Δx(3x² + 3xΔx + (Δx)²) / Δx]</div>
+          <div class="paso">7. Cancelamos Δx: = lim<sub>Δx→0</sub> [3x² + 3xΔx + (Δx)²]</div>
+          <div class="paso">8. Aplicamos el límite: f'(x) = 3x² ✅</div>
+        `;
+      } else {
+        resultado.innerHTML = `<div class="paso">⚠️ Por ahora solo se admiten funciones como x^2 o x^3. Pronto se podrán más.</div>`;
+      }
+    }
+  </script>
 </body>
 </html>
